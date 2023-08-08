@@ -19,10 +19,28 @@ trees = []
 for _ in range(N):
     trees.append(int(input()))
 
-# 각 가로수 차이 중 가장 작은 값
-differ = trees[1] - trees[0]
-for i in range(1, len(trees)):
-    if differ > trees[i] - trees[i - 1]:
-        differ = trees[i] - trees[i - 1]
+# 각 가로수 차이 구하기
+differs = []
+for i in range(1, N):
+    differs.append(trees[i] - trees[i - 1])
 
-print((trees[-1] // differ) - len(trees) + 1)
+# 각 가로수 차이의 최대 공약수 구하기
+# 최대 공약수 함수
+def GCD(x, y):
+    while x > 0:
+        if y == 0:
+            break
+        x, y = y, (x % y)
+    return x
+
+# 가로수 차이의 리스트 만큼 반복으로 최대 공약수 구하기
+differs_gcd = differs[0]
+for i in range(1, len(differs)):
+        differs_gcd = GCD(differs_gcd, differs[i])
+
+# 각 간격을 최대 공약수로 나눈 후, 양쪽 나무 사이에 심는 것이므로 -1
+ans = 0
+for differ in differs:
+    ans += int(differ / differs_gcd) - 1
+
+print(ans)
