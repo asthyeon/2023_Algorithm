@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="ad82948a-f213-41d9-91a9-5d79c7d3def7" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/../Math_S3_1929/S3_1929.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Math_S3_1929/input.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Math_S4_4134/S4_4134.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Math_S4_4134/input.txt" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 3
+}]]></component>
+  <component name="ProjectId" id="2TkfHkbuKXr5025SCevbqq6XqoR" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "master"
+  }
+}]]></component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="ad82948a-f213-41d9-91a9-5d79c7d3def7" name="Changes" comment="" />
+      <created>1691591914981</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1691591914981</updated>
+    </task>
+    <servers />
+  </component>
+</project>
