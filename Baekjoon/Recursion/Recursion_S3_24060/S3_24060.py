@@ -6,6 +6,7 @@ input = sys.stdin.readline
 # 병합 정렬
 1. 배열 A 에 K 번째 저장되는 수를 출력하기
 2. 저장 횟수가 K 보다 작으면 -1 출력
+3. tmp를 기존 배열의 복사본으로 사용하면 시간 초과 -> 빈 tmp를 생성하고 append 하는 형식
 '''
 
 # 배열 A 의 크기 N, 저장 횟수 K
@@ -41,37 +42,38 @@ def merge(arr, start, middle, end):
     i = start
     j = middle + 1
     t = 0
-    # 기존 배열의 복사본
-    tmp = arr[::]
-    # 시작점이 중간점보다 작거나 같고 중간점이 끝점보다 작거나 같을 때
+    # 병합을 위한 tmp 형성
+    tmp = []
+    # 분할된 부분까지 tmp 내의 원소들을 정렬
     while i <= middle and j <= end:
         # 시작점의 원소가 더 작다면
         if arr[i] <= arr[j]:
             # 위치 그대로
-            tmp[t] = arr[i]
+            tmp.append(arr[i])
             t += 1
             i += 1
         # 시작점의 원소가 더 크다면
         else:
             # 위치 변경
-            tmp[t] = arr[j]
+            tmp.append(arr[j])
             t += 1
             j += 1
-    # 왼쪽 배열 부분만 남은 경우 재반복
+    # 왼쪽 배열 부분이 남은 경우 재반복
     while i <= middle:
-        tmp[t] = arr[i]
+        tmp.append(arr[i])
         t += 1
         i += 1
-    # 오른쪽 배열 부분만 남은 경우 재반복
+    # 오른쪽 배열 부분이 남은 경우 재반복
     while j <= end:
-        tmp[t] = arr[j]
+        tmp.append(arr[j])
         t += 1
         j += 1
     # 초기화
     i = start
     t = 0
-    # 시작점부터 끝점까지 저장횟수 저장
+    # 원래의 배열을 정렬된 tmp로 바꿔주기(병합)
     while i <= end:
+        # 원래의 요소를 정렬된 요소로 바꾸기 (저장 횟수 + 1)
         arr[i] = tmp[t]
         count += 1
         if count == K:
