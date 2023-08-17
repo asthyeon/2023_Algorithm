@@ -13,15 +13,35 @@ input = sys.stdin.readline
     (4) 이 과정은 모든 선의 길이가 1일때 까지 계속하기
 '''
 
+
 # 분할 정복 함수
-def divide(arr, S, E):
-    if S == E:
-        return S
+def divide(N, S, E, arr):
+    if N == 0:
+        return
 
-    mid = (S + E) // 3
-    S = divide(arr, S, mid)
-    M = divide(arr, mid + 1, mid * 2)
-    E = divide(arr, mid * 2 + 1, E)
+    M = (E - S) // 3
+    # 왼쪽
+    divide(N - 1, S, S + M, arr)
+    # 중간 공백 형성
+    for i in range(S + M, S + (M * 2)):
+        arr[i] = ' '
+    # 오른쪽
+    divide(N - 1, S + (M * 2), S + (M * 3), arr)
 
+
+while True:
+    try:
+        N = int(input())
+        # 시작점과 끝점
+        S = 0
+        E = (3 ** N)
+        # 배열 형성
+        arr = ['-'] * (3 ** N)
+
+        divide(N, S, E, arr)
+        result = "".join(arr)
+        print(result)
+    except:
+        break
 
 
