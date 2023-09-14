@@ -18,9 +18,8 @@ input = sys.stdin.readline
 
 # 이분탐색 함수
 def binary_search(M, trees):
-    start = 0
+    start = 1
     end = max(trees)
-    result = 0
     while start <= end:
         mid = (start + end) // 2
         # 자른 나무의 길이
@@ -29,20 +28,14 @@ def binary_search(M, trees):
             # 자른 값이 음수가 아니라면
             if tree - mid >= 0:
                 wood += tree - mid
-        # 자르고 남은 나무의 길이가 필요한 나무만큼이라면 종료
-        if wood == M:
-            result = mid
-            break
-        # 자르고 남은 나무의 길이가 필요한 나무보다 길다면
-        if wood > M:
-            result = mid
+        # 자르고 남은 나무의 길이가 필요한 나무보다 같거나 길다면
+        if wood >= M:
             start = mid + 1
         # 자르고 남은 나무의 길이가 필요한 나무보다 짧다면
         else:
-            result = mid
             end = mid - 1
 
-    return print(result)
+    return end
 
 
 # 나무의 수 N, 필요한 나무 길이 M
@@ -51,4 +44,4 @@ N, M = map(int, input().split())
 # 나무의 높이들
 trees = list(map(int, input().split()))
 
-binary_search(M, trees)
+print(binary_search(M, trees))
