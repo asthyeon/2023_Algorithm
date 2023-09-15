@@ -1,28 +1,41 @@
 import sys
 sys.stdin = open('input.txt')
 input = sys.stdin.readline
-sys.maxsize
 
+"""
+# 적어도 M 미터의 나무를 집에 가져가기 위해서 절단기에 설정할 수 있는 높이의 최댓값 구하기
+1. 목재절단기 동작
+- 절단기에 높이 H 지정
+- 톱날이 땅으로부터 H 미터 위로 올라감
+- 한 줄에 연속해있는 나무 모두 절단
+- 높이가 H보다 큰 나무는 H 위의 부분이 잘림
+- 낮은 나무는 잘리지 않음
+2. 나무를 필요한 만큼만 자름
+@ 풀이
+(1) 이분 탐색 사용
+"""
 
-def minimal_board(color):
-    prefix_sum = [[0] * (M + 1) for _ in range(N + 1)]
-    for i in range(N):
-        for j in range(M):
-            if (i + j) % 2 == 0:
-                value = board[i][j] != color
-            else:
-                value = board[i][j] == color
-            prefix_sum[i + 1][j + 1] = prefix_sum[i][j + 1] + prefix_sum[i + 1][j] - prefix_sum[i][j] + value
+# 나무의 수 N, 필요한 나무 길이 M
+N, M = map(int, input().split())
 
-    count = sys.maxsize
-    for i in range(1, N - K + 2):
-        for j in range(1, M - K + 2):
-            count = min(count,
-                        prefix_sum[i + K - 1][j + K - 1] - prefix_sum[i + K - 1][j - 1] - prefix_sum[i - 1][j + K - 1] +
-                        prefix_sum[i - 1][j - 1])
-    return count
+# 나무의 높이들
+trees = list(map(int, input().split()))
 
+start = 1
+end = max(trees)
+while start <= end:
+    mid = (start + end) // 2
+    # 자른 나무의 길이
+    wood = 0
+    for tree in trees:
+        # 자른 값이 음수가 아니라면
+        if tree - mid >= 0:
+            wood += tree - mid
+    # 자르고 남은 나무의 길이가 필요한 나무보다 같거나 길다면
+    if wood >= M:
+        start = mid + 1
+    # 자르고 남은 나무의 길이가 필요한 나무보다 짧다면
+    else:
+        end = mid - 1
 
-N, M, K = map(int, input().split())
-board = [list(input()) for _ in range(N)]
-print(min(minimal_board('B'), minimal_board('W')))
+print(end)
