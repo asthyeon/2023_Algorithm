@@ -17,19 +17,14 @@ for _ in range(N):
     s, e = map(int, input().split())
     N_list.append((s, e))
 
-# 끝나는 시간 순 정렬
-sorted(N_list, key=lambda x:x[1])
+# 끝나는 시간 순 - 시작 시간 순 정렬
+N_list = sorted(N_list, key=lambda x: (x[1], x[0]))
 # 회의 수
-max_cnt = 0
+cnt = 0
 end = 0
 for i in range(N):
-    cnt = 1
-    end = N_list[i][0]
-    for j in range(i + 1, N):
-        if end <= N_list[j][0]:
-            cnt += 1
-            end = N_list[j][1]
-    if max_cnt < cnt:
-        max_cnt = cnt
+    if end <= N_list[i][0]:
+        cnt += 1
+        end = N_list[i][1]
 
-print(max_cnt)
+print(cnt)
