@@ -13,24 +13,22 @@ input = sys.stdin.readline
 @ 풀이
 (1) 백트래킹으로 풀기
 (2) 똑같은 수가 사용된 수열 사용 가능하므로 path 삭제하기
+(3) 같은 수 이상이므로 i부터 반복 시작
 """
 
 
 # 백트래킹 함수
-def backtracking(sequence, idx):
+def backtracking(sequence, idx, start):
     # 재귀를 종료하는 기저 조건(수열의 마지막 숫자가 0 보다 클 때 종료(길이가 M 이 될 때))
     if idx == M:
         # 사전순으로 수열을 구성하기 때문에 그대로 출력
         print(*sequence)
         return
 
-    for i in range(1, N + 1):
-        if idx >= 1:
-            if sequence[idx] < sequence[idx - 1]:
-                continue
+    for i in range(start, N + 1):
         sequence[idx] = i
         idx += 1
-        backtracking(sequence, idx)
+        backtracking(sequence, idx, i)
         idx -= 1
         sequence[idx] = 0
 
@@ -41,6 +39,7 @@ N, M = map(int, input().split())
 sequence = [0] * M
 # 수열의 인덱스
 idx = 0
+start = 1
 
 # 함수 사용
-backtracking(sequence, idx)
+backtracking(sequence, idx, start)
