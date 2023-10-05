@@ -3,59 +3,31 @@ sys.stdin = open('input.txt')
 input = sys.stdin.readline
 
 
-# 최소 힙 함수
-def min_heap(arr, idx):
-    while idx > 1:
-        parent_idx = idx // 2
-        if arr[parent_idx] > arr[idx]:
-            arr[parent_idx], arr[idx] = arr[idx], arr[parent_idx]
-            idx = parent_idx
-        else:
-            break
+def multi(a,b):
+    X = [[0]*N for _ in range(N)]
+    for i in range(N): # 행렬
+        for j in range(N):
+            for k in range(N):
+                X[i][j] += a[i][k]*b[k][j] % 1000 #곱셈 연산
+    return X
 
 
-# 삭제 함수
-def delete(arr):
-    if len(arr) <= 1:
-        return 0
-
-    result = arr[1][1]
-    arr[1] = arr[-1]
-    arr.pop()
-    idx = 1
-
-    while idx * 2 < len(arr):
-        left_child = idx * 2
-        right_child = left_child + 1
-
-        min_child = left_child
-
-        if right_child < len(arr) and arr[right_child] < arr[left_child]:
-            min_child = right_child
-
-        if arr[idx] > arr[min_child]:
-            arr[idx], arr[min_child] = arr[min_child], arr[idx]
-            idx = min_child
-        else:
-            break
-
-    return result
+def square(x,n): #분할 정복을 이용해 요구 사항만큼 제곱하기
+    if n == 1:
+        return x
+    temp = square(x,n//2)
+    if n % 2 == 0 :
+        return multi(temp,temp)
+    else :
+        return multi(multi(temp,temp),x)
 
 
-# 연산의 개수 N
-N = int(input())
+N, B = map(int,sys.stdin.readline().split())
+A = [list(map(int, sys.stdin.readline().split())) for _ in range(N)]
+result = square(A,B)
+for i in range(N): #요구조건 대로 1000으로 나눠주자
+    for j in range(N):
+        result[i][j] = result[i][j] %1000
 
-# 연산 입력받기
-commands = [(0, 0)]  # (절댓값, 원래 값)
-idx = 0
-for _ in range(N):
-    command = int(input())
-    if command != 0:
-        commands.append((abs(command), command))
-        idx += 1
-        min_heap(commands, idx)
-    else:
-        if len(commands) == 1:
-            print(0)
-        else:
-            print(delete(commands))
+for k in result:
+    print(*k)

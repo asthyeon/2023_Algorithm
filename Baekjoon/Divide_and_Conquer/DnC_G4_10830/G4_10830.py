@@ -15,19 +15,48 @@ def dnc(A, B, answer):
     if B == 1:
         for a in range(N):
             for b in range(N):
-                answer[a][b] %= B
-        return
+                answer[a][b] %= 1000
+        return answer
     # 짝수일 때
     elif B % 2 == 0:
-        for a in range(N):
-            for b in range(N):
-                num = 0
-                for c in range(N):
-                    num += answer[a][c] * A[c][b]
-                answer[a][b] = num ** 2 * A[]
+        return even(dnc(A, B // 2, answer))
     # 홀수일 때, 자기 자신을 한 번 더 곱해야함
     else:
-        return ((divide(A, B // 2, C) ** 2) * A) % C
+        return odd(dnc(A, B // 2, answer), A)
+
+
+# 계산함수(짝수)
+def even(answer):
+    # 제곱을 위한 행렬
+    replace = [i[:] for i in answer]
+    for a in range(N):
+        for b in range(N):
+            num = 0
+            for c in range(N):
+                num += replace[a][c] * replace[c][b]
+            answer[a][b] = num % 1000
+    return answer
+
+
+# 계산함수(홀수)
+def odd(answer, A):
+    # 제곱을 위한 행렬
+    replace = [i[:] for i in answer]
+    for a in range(N):
+        for b in range(N):
+            num = 0
+            for c in range(N):
+                num += replace[a][c] * replace[c][b]
+            answer[a][b] = num % 1000
+    # 제곱을 위한 행렬
+    replace = [i[:] for i in answer]
+    for a in range(N):
+        for b in range(N):
+            num = 0
+            for c in range(N):
+                num += replace[a][c] * A[c][b]
+            answer[a][b] = num % 1000
+    return answer
 
 
 # N, B
@@ -37,6 +66,9 @@ N, B = map(int, input().split())
 A = [list(map(int, input().split())) for _ in range(N)]
 
 # 정답 행렬
-answer = [[0] * N for _ in range(N)]
+answer = [i[:] for i in A]
 
-print(answer)
+dnc(A, B, answer)
+
+for j in range(N):
+    print(*answer[j])
