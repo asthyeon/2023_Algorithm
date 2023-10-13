@@ -14,76 +14,75 @@ input = sys.stdin.readline
 """
 from collections import deque
 
-sys.setrecursionlimit(10 * 9)
-
-
-# dfs 함수
-def dfs(n, populations, adj, stack, passed, dfs_pop, dfs_length):
-    # 방문한 곳이라면 빠져나오기
-    if passed[n] == 1:
-        return
-    # 스택 형성 및 시작점 푸쉬
-    stack.append(n)
-    # 시작점 방문 처리
-    passed[n] = 1
-    # 1지역 선거구 인구수
-    dfs_pop += populations[n - 1]
-    # 1지역 선거구 길이
-    dfs_length += 1
-    # bfs 함수 사용
-    # bfs(passed, populations, dfs_pop, dfs_length, adj, stack)
-    # 탐색
-    for w in adj[n]:
-        dfs(w, populations, adj, stack, passed, dfs_pop, dfs_length)
-    # 탐색을 다 돌았다면 뒤로 가기
-    else:
-        stack.pop()
-        dfs_pop -= populations[n - 1]
-        dfs_length -= 1
-        passed[n] = 0
-
 
 # bfs 함수
-def bfs(passed, populations, dfs_pop, dfs_length, adj, stack):
-    global min_pop
-    # 2지역 선거구 인구수
-    bfs_pop = 0
-    # 새로운 방문리스트
-    visited = passed[:]
-    # 방문하지 않은 곳 시작점 찾기
-    start = 0
-    for i in range(1, N + 1):
-        if visited[i] == 0:
-            start = i
-            break
-    if start == 0:
-        return
-    # 선거구의 길이
-    bfs_length = 0
+def bfs(path):
+    # 방문 리스트
+    visited = [0] * (N + 1)
     # 큐 생성 및 시작점 인큐
-    q = deque([start])
-    # 시작점 방문기록
-    visited[start] = 1
+    q = deque([path[0]])
+    # 시작점 방문 기록
+    visited[path[0]] = 1
     # 큐가 빌 때까지
     while q:
-        n = q.popleft()
-        bfs_pop += populations[n - 1]
-        bfs_length += 1
-        for w in adj[n]:
-            # 방문하지 않은 곳이라면
+        start = q.popleft()
+        for w in adj[start]:
             if visited[w] == 0:
-                q.append(w)
                 visited[w] = 1
-    # 두 선거구로 나뉘는지 확인
-    if dfs_length + bfs_length != N:
-        return True
-    # 두 선거구로 나뉘었다면
-    else:
-        # 최소값으로 교체
-        differ = abs(dfs_pop - bfs_pop)
-        if min_pop > differ:
-            min_pop = differ
-        return True
+    for p in path:
+        if visited[p] != 1:
+            return False
+    return bfs2(path)
+
+
+# bfs2 함수
+def bfs2(path):
+    other_path = list(reverse_path.difference(path))
+    visited = [0] * (N + 1)
+    # 큐 생성 및 시작점 인큐
+    q = deque([other_path[0]])
+    # 시작점 방문 기록
+    visited[other_path[0]] = 1
+    # 큐가 빌 때까지
+    while q:
+        start = q.popleft()
+        for w in adj[start]:
+            if visited[w] == 0:
+                visited[w] = 1
+    for o in other_path:
+        if visited[o] != 1:
+            return False
+    left_pops = 0
+    right_pops = 0
+    for pa in path:
+        left_pops += populations[pa - 1]
+    for opa in other_path:
+        right_pops += populations[opa - 1]
+    result = abs(left_pops - right_pops)
+    return result
+
+
+# 조합 함수
+def combination(N, path):
+    global differ
+    if path:
+        # 선거구가 두 구역으로 나누어지지 않을 때는 종료
+        if len(path) == N:
+            return
+        # 선거구가 두 구역으로 나누어진다면 bfs 함수로 연결 확인
+        else:
+            answer = bfs(path)
+            if answer:
+                if differ > answer:
+                    differ = answer
+
+    for i in range(1, N + 1):
+        if i in path:
+            continue
+
+        path.append(i)
+        combination(N, path)
+        path.pop()
 
 
 # 구역의 개수 N
@@ -104,21 +103,16 @@ for i in range(1, N + 1):
     for j in range(1, info[0] + 1):
         adj[i].append(info[j])
 
-# 인구 최소 차이
-min_pop = 1000000000
+# 조합을 구하기 위한 path
+path = []
+# path 와 반대되는 다른 지역 선거구를 만들기위한 세트
+reverse_path = set()
+for i in range(1, N + 1):
+    reverse_path.add(i)
 
-for j in range(1, N + 1):
-    # 지나온 길
-    passed = [0] * (N + 1)
-    stack = []
-    # 1지역 선거구 인구수
-    dfs_pop = 0
-    # 1지역 선거구 길이
-    dfs_length = 0
-    # dfs 함수 사용
-    dfs(1, populations, adj, stack, passed, dfs_pop, dfs_length)
+# 두 선거구의 인구 차이의 최솟값
+differ = 100 * 100
 
-if min_pop == 1000000000:
-    print(-1)
-else:
-    print(min_pop)
+combination(N, path)
+
+print(differ)
