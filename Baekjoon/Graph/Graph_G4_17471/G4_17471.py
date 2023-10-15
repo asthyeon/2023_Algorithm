@@ -1,5 +1,4 @@
 import sys
-
 sys.stdin = open('input.txt')
 input = sys.stdin.readline
 
@@ -13,76 +12,50 @@ input = sys.stdin.readline
 (2) 그래프 탐색 사용(dfs or bfs)
 """
 from collections import deque
+import itertools
 
 
 # bfs 함수
-def bfs(path):
+def bfs(combi, other_combi):
+    global differ
     # 방문 리스트
     visited = [0] * (N + 1)
-    # 큐 생성 및 시작점 인큐
-    q = deque([path[0]])
+    # 큐 생성
+    q = deque([combi[0]])
     # 시작점 방문 기록
-    visited[path[0]] = 1
+    visited[combi[0]] = 1
     # 큐가 빌 때까지
     while q:
         start = q.popleft()
         for w in adj[start]:
-            if visited[w] == 0:
+            if visited[w] == 0 and w in combi:
                 visited[w] = 1
-    for p in path:
-        if visited[p] != 1:
+                q.append(w)
+    for c in combi:
+        if visited[c] != 1:
             return False
-    return bfs2(path)
+    return bfs2(other_combi)
 
 
 # bfs2 함수
-def bfs2(path):
-    other_path = list(reverse_path.difference(path))
-    visited = [0] * (N + 1)
+def bfs2(other_combi):
+    global differ
+    visited2 = [0] * (N + 1)
     # 큐 생성 및 시작점 인큐
-    q = deque([other_path[0]])
+    q = deque([other_combi[0]])
     # 시작점 방문 기록
-    visited[other_path[0]] = 1
+    visited2[other_combi[0]] = 1
     # 큐가 빌 때까지
     while q:
         start = q.popleft()
         for w in adj[start]:
-            if visited[w] == 0:
-                visited[w] = 1
-    for o in other_path:
-        if visited[o] != 1:
+            if visited2[w] == 0 and w in other_combi:
+                visited2[w] = 1
+                q.append(w)
+    for o in other_combi:
+        if visited2[o] != 1:
             return False
-    left_pops = 0
-    right_pops = 0
-    for pa in path:
-        left_pops += populations[pa - 1]
-    for opa in other_path:
-        right_pops += populations[opa - 1]
-    result = abs(left_pops - right_pops)
-    return result
-
-
-# 조합 함수
-def combination(N, path):
-    global differ
-    if path:
-        # 선거구가 두 구역으로 나누어지지 않을 때는 종료
-        if len(path) == N:
-            return
-        # 선거구가 두 구역으로 나누어진다면 bfs 함수로 연결 확인
-        else:
-            answer = bfs(path)
-            if answer:
-                if differ > answer:
-                    differ = answer
-
-    for i in range(1, N + 1):
-        if i in path:
-            continue
-
-        path.append(i)
-        combination(N, path)
-        path.pop()
+    return True
 
 
 # 구역의 개수 N
@@ -90,6 +63,8 @@ N = int(input())
 
 # 각 구역의 인구 수
 populations = list(map(int, input().split()))
+# 전체 인구수 합
+sum_pops = sum(populations)
 
 # 인접 리스트
 adj = [[] for _ in range(N + 1)]
@@ -103,8 +78,6 @@ for i in range(1, N + 1):
     for j in range(1, info[0] + 1):
         adj[i].append(info[j])
 
-# 조합을 구하기 위한 path
-path = []
 # path 와 반대되는 다른 지역 선거구를 만들기위한 세트
 reverse_path = set()
 for i in range(1, N + 1):
@@ -113,6 +86,22 @@ for i in range(1, N + 1):
 # 두 선거구의 인구 차이의 최솟값
 differ = 100 * 100
 
-combination(N, path)
+# 인구수 차이 구하기
+for j in range(1, N // 2 + 1):
+    combination = list(itertools.combinations(range(1, N + 1), j))
+    for combi in combination:
+        left_pops = 0
+        other_combi = tuple(reverse_path.difference(combi))
+        for com in combi:
+            left_pops += populations[com - 1]
+        right_pops = sum_pops - left_pops
+        result = abs(left_pops - right_pops)
+        if differ > result:
+            if bfs(combi, other_combi):
+                differ = result
 
-print(differ)
+
+if differ == 100 * 100:
+    print(-1)
+else:
+    print(differ)
