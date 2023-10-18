@@ -1,4 +1,5 @@
 import sys
+
 sys.stdin = open('input.txt')
 input = sys.stdin.readline
 
@@ -35,7 +36,7 @@ def binary_search(arr):
                 now = i
         # 남은 구간을 구간 하나로 보고 더하기
         section += 1
-        
+
         # 구간이 M 개 이하일 때 정답이 됨
         if section <= M:
             end = mid - 1
