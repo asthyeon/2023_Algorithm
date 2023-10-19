@@ -3,53 +3,46 @@ sys.stdin = open('input.txt')
 input = sys.stdin.readline
 
 """
-# 배열과 M이 주어졌을 때 구간의 점수의 최댓값의 최솟값 구하기
-1. 구간의점수: 구간에 속한 수의 최댓값과 최솟값의 차이
-2. 하나의 구간은 하나 이상의 연속된 수들로 이루어짐
-3. 배열의 각 수는 모두 하나의 구간에 포함되어야 함
-@ 풀이
-(1) 이분 탐색 사용
-(2) 구간의 길이를 기준으로 찾기
+# 김지민과 임한수가 몇 라운드에서 대결하는지 출력
+1. 인접한 번호끼리 스타 진행
+2. 이긴 사람은 다음 라운드 진출, 진 사람은 탈락
+3. 참가자가 홀수라면 마지막 번호 참가자는 다음 라운드 자동 진출
+4. 다음 라운드에선 다시 참가자의 번호를 1번부터 매긴다
+5. 1명이 남을 때까지 라운드 계속 진행
+6. 김지민과 임한수는 서로 만나기 전까지 항상 이김
+7. 서로 대결하지 않으면 -1 출력
 """
+sys.setrecursionlimit(10**9)
 
 
-# 이분 탐색 함수
-def binary_search(arr):
-    start = 0
-    end = max(arr)
-    # 구간의 점수의 최대값의 최솟값
-    answer = 0
-    while start <= end:
-        mid = (start + end) // 2
-        # 구간의 수
-        section = 0
-        # 구간의 시작점
-        now = 0
-        # 구간의 시작점 부터 반복문
-        for i in range(1, N):
-            score = max(arr[now:i + 1]) - min(arr[now:i + 1])
-            # 구간의 점수가 이번 점수의 최대값보다 크다면
-            if score > mid:
-                # 구역을 하나 더하고 시작점을 끝점으로 교체
-                section += 1
-                now = i
-        # 남은 구간을 구간 하나로 보고 더하기
-        section += 1
-        
-        # 구간이 M 개 이하일 때 정답이 됨
-        if section <= M:
-            end = mid - 1
-            answer = mid
-        else:
-            start = mid + 1
+# 토너먼트 함수
+def tournament(N, players, kim, lim, number):
+    # 다음 라운드에 올라갈 인원
+    match = []
+    # 다음 라운드에 붙일 번호
+    num = 0
+    while True:
+        if kim + lim == kim + kim + 1:
 
-    return answer
+    # 참가자 수가 홀수라면 부전승 추가
+    if N // 2 == 1:
+        num += 1
+        match.append(num)
+    # 라운드 수 증가
+    number += 1
+    # 참가자 리스트 교체
+    players = match[:]
+    # 참가자 수 변경
+    N = len(match)
+    # 다음 라운드 진행
+    tournament(N, players, kim, lim, number)
 
 
-# 배열의 크기 N, 구간의 수 M 개 이하
-N, M = map(int, input().split())
+# 참가자 수 N, 김지민 번호, 임한수 번호
+N, kim, lim = map(int, input().split())
+# 참가자 리스트
+players = [i for i in range(1, N + 1)]
+# 라운드 수
+number = 1
 
-# 배열
-arr = list(map(int, input().split()))
-
-print(binary_search(arr))
+tournament(N, players, kim, lim, number)
