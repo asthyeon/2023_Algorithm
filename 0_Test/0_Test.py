@@ -2,64 +2,31 @@ import sys
 sys.stdin = open('input.txt')
 input = sys.stdin.readline
 
-def get_dist(loc1, loc2):
-    x1, y1, x2, y2 = loc1[0], loc1[1], loc2[0], loc2[1]
-    return ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
+"""
+# k원이 되는 경우의 수 구하기
+1. n 가지 종류의 동전 존재
+2. 각각의 동전의 가치가 다름
+3. 총 가치의 합이 k원이 되도록 하고 싶음
+4. 각각의 동전은 몇 개라도 사용할 수 있음
+@ 풀이
+(1) dp 사용
+ 1. 1 10개 
+ 2. 1 8개  2
+ 2. 2 5개  
+ 3. 5 2개  
+"""
 
 
-def find(parent, x):
-    if x != parent[x]:
-        parent[x] = find(parent, parent[x])
-
-    return parent[x]
+# dp 함수
+def dynamic_programming():
+    pass
 
 
-def union(parent, a, b):
-    a = find(parent, a)
-    b = find(parent, b)
+# 종류 가지 수 n 개, 총 가치의 합 k 원
+n, k = map(int, input().split())
+# 각각의 동전의 가치
+values = []
+for _ in range(n):
+    value = int(input())
+    values.append(value)
 
-    if a < b:
-        parent[b] = a
-
-    else:
-        parent[a] = b
-
-
-N, M = map(int, input().split())
-parent = list(range(N+1))
-
-edges = [0] * (N+1)
-for i in range(1, N+1):
-    edges[i] = list(map(int, input().split()))
-
-
-for _ in range(M):
-    a, b = map(int, input().split())
-    union(parent, a, b)
-
-
-possible = []
-for i in range(1, len(edges)-1):
-    for j in range(i+1, len(edges)):
-        possible.append([get_dist(edges[i], edges[j]), i, j])
-
-print(possible)
-possible.sort()
-ans = 0
-
-for p in possible:
-    cost, x, y = p[0], p[1], p[2]
-
-    if find(parent, x) != find(parent, y):
-        union(parent, x, y)
-        ans += cost
-
-print(parent)
-print(edges)
-print(possible)
-print("{:.2f}".format(ans))
-
-# step
-# M개를 먼저 연결 (Union)
-# 만들 수 있는 연결들을 dist와 함께 저장
-# Kruskal
