@@ -2,66 +2,94 @@ import sys
 sys.stdin = open('input.txt')
 input = sys.stdin.readline
 
-"""
-# 우리가 2 * N 배열에 사자를 배치하는 경우의 수가 몇가지인가?
-1. 가로 2칸 세로 N 칸
-2. 사자들은 가로로도 세로로도 붙어 있을 수 없음
-3. 사자를 한 마리도 배치하지 않는 경우도 하나의 경우의 수
-4. 사자를 배치하는 경우의 수를 9901로 나눠서 출력
-@ 풀이
-(1) dp로 풀기
-- 크기가 5일 때
-    - 0마리: 1
-    - 1마리: 10
-    - 2마리: 7 + 7 + 5 + 5 + 3 + 3 + 1 + 1 = 32
-    - 3마리: 5 + 3 + 3 + 1 + 1 + 5 + 3 + 3 + 1 + 1
-             3 + 1 + 1 + 3 + 1 + 1 + 1 + 1 = 38
-    - 4마리: 3 + 1 + 1 + 1 + 1 + 3 + 1 + 1 + 1 + 1 + 1 + 1 = 16
-    - 5마리: 2
-- 크기가 4일 때
-    - 0마리: 1
-    - 1마리: 8
-    - 2마리: 5 + 5 + 3 + 3 + 1 + 1 = 18
-    - 3마리: 3 + 1 + 1 + 3 + 1 + 1 + 1 + 1 = 12
-    - 4마리: 1 + 1 = 2
-- 크기가 3일 때
-    - 0마리: 1
-    - 1마리: 6
-    - 2마리: 3 + 3 + 1 + 1 = 8
-    - 3마리: 1 + 1 = 2
-- 크기가 2일 때
-    - 0마리: 1
-    - 1마리: 4
-    - 2마리: 1 + 1 = 2
-- 1: 1, 2 -> 3
-    +4 = 3 + 1
-- 2: 1, 4, 2 -> 7
-    +10 = 7 + 3
-- 3: 1, 6, 8, 2 -> 17
-    +24 = 17 + 7
-- 4: 1, 8, 18, 12, 2 -> 41
-    +58 = 41 + 17
-- 5: 1, 10, 32, 38, 16, 2 -> 99
-(2) dp의 값: 경우의 수, dp의 인덱스: 울타리 크기
-dp[i] = dp[i - 1] * 2 + dp[i - 2]
-"""
+from collections import deque
 
+n, m = map(int, input().split())
+data = [list(map(int, input().split())) for _ in range(n)]
+visited = [[False]*m for _ in range(n)]
+move = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+land = dict()
+landArr = []
 
-# dp 함수
-def dynamic_programming(N):
-    dp = [0] * (N + 1)
-    # dp[0]은 1 (울타리에 크기가 0 이어도 한 마리도 배치하지 않는 경우의 수 1 존재)
-    dp[0] = 1
-    # dp[1]은 3 (dp[i - 2]를 구할 수 없으므로 미리 정의)
-    dp[1] = 3
-    # dp 계산
-    for i in range(2, N + 1):
-        dp[i] = ((dp[i - 1] * 2) + dp[i - 2]) % 9901
+number = 0
+for i in range(n) :
+    for j in range(m) :
+        if data[i][j] == 1 and visited[i][j] == False :
+            q = deque([(i, j)])
+            visited[i][j] = True
+            land[(i, j)] = number
+            landArr.append((i, j, number))
 
-    return dp[N]
+            while q :
+                x, y = q.popleft()
+                for r, c in move :
+                    nx = x + r
+                    ny = y + c
+                    if 0 <= nx < n and 0 <= ny < m and visited[nx][ny] == False and data[nx][ny] == 1 :
+                        q.append((nx, ny))
+                        visited[nx][ny] = True
+                        land[(nx, ny)] = number
+                        landArr.append((nx, ny, number))
+            number += 1
 
+edges = []
+for x, y, fromLand in landArr : # 좌표, 섬 번호
+    for r, c in move :
+        dist = 0
+        nx = x + r
+        ny = y + c
+        while True :
+            if not (0 <= nx < n and 0 <= ny < m) :
+                break
+            toLand = land.get((nx, ny))
+            # 같은 번호의 섬일 경우
+            if fromLand == toLand :
+                break
+            # 바다 위일 경우
+            if toLand == None :
+                nx = nx + r
+                ny = ny + c
+                dist += 1
+                continue
+            # 다리 길이가 2보다 작을 경우
+            if dist < 2 :
+                break
 
-# 우리의 세로 크기 N
-N = int(input())
+            edges.append((dist, fromLand, toLand)) # 섬과 섬 간의 거리
+            break
 
-print(dynamic_programming(N))
+edges = sorted(edges, reverse=True)
+print(edges)
+
+result = 0
+count = number - 1
+parents = [i for i in range(number)]
+flag = 0
+
+def find(k) :
+    if k != parents[k] :
+        parents[k] = find(parents[k])
+    return parents[k]
+
+def union(x, y) :
+    x = find(x)
+    y = find(y)
+    parents[y] = x
+
+# print(edges)
+while count :
+    try :
+        distance, a, b = edges.pop() # 거리가 작은 것부터 pop
+    except :
+        flag = 1
+        break
+
+    if find(a) != find(b) :
+        union(a, b)
+        result += distance
+        count -= 1
+
+if flag == 1 :
+    print(-1)
+else :
+    print(result)
