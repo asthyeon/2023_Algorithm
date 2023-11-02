@@ -1,4 +1,5 @@
 import sys
+
 sys.stdin = open('input.txt')
 input = sys.stdin.readline
 
@@ -45,7 +46,7 @@ def bfs(stations, hyper):
                     if passed[N] != 0:
                         q.clear()
                         break
-                        
+
     if passed[-1] == 0:
         return -1
     else:
