@@ -3,35 +3,44 @@ sys.stdin = open('input.txt')
 input = sys.stdin.readline
 
 """
-# 모든 가짓수 % 15746 구하기
-1. 01, 10은 만들 수 없음
-2. 00, 1만 사용
+# 1번역에서 N번역으로 가는데 방문하는 최소 역의 수 구하기
+1. 하이퍼튜브 하나는 역 K개를 서로 연결
+2. 갈 수 없다면 -1 출력
 @ 풀이
-(1) dp 사용
-    - dp[0] = 1
-    - dp[1] = 1
-    - dp[2] = 2: dp[1] + dp[0]
-    - dp[3] = 3: dp[2] + dp[1]
-    - dp[4] = 5: dp[3] + dp[2]
-    - dp[5] = 8: dp[4] + dp[3]
-    - 00001 10000 00100 00111 10011 11001 11100 11111
-(2) 피보나치 수열
+(1) 다익스트라 이용시 메모리 초과
+(2) 연결정보를 다 받아놓고 1부터 N까지 순회
 """
+import heapq
 
 
-# dp 함수
-def dynamic_programming(N):
-    dp = [0] * (N + 1)
-    dp[0] = 1
-    dp[1] = 1
-    if N >= 2:
-        for i in range(2, N + 1):
-            dp[i] = (dp[i - 2] + dp[i - 1]) % 15746
+# 연결 함수
+def connect(hyper):
+    cnt = 0
+    passed = [0] * (N + 1)
+    passed[1] = 1
+    for i in range(1, N):
+        if passed[-1] != 0:
+            break
+        for j in range(M):
+            if i in hyper[j]:
+                for k in range(K):
+                    if i == hyper[j][k]:
+                        continue
+                    if passed[hyper[j][k]] != 0:
+                        continue
+                    if passed[i] != 0:
+                        passed[hyper[j][k]] = passed[i] + 1
+    if passed[-1] == 0:
+        return -1
+    else:
+        return passed[-1]
 
-    return dp[N]
 
+# 역의 수 N, 역의 개수 K, 하이퍼튜브의 개수 M
+N, K, M = map(int, input().split())
+hyper = []
+for _ in range(M):
+    tube = tuple(map(int, input().split()))
+    hyper.append(tube)
 
-# 자연수 N
-N = int(input())
-
-print(dynamic_programming(N))
+print(connect(hyper))
