@@ -3,105 +3,71 @@ sys.stdin = open('input.txt')
 input = sys.stdin.readline
 
 """
-# 목적지에 다다르기 위해 가장 빠른 시간 출력
-1. a 에서 b 로 이동할 때 걸어갈 수도 있고 대포를 이용할 수 있음
-2. 내린 위치에서 도착점을 향해 걸어갈 수도 있고, 또 다른 대포 이용 가능
-3. 5m/s의 속도로 달림
-4. 모든 대포는 당신이 원하는 임의의 방향으로 50m 날려줄 수 있음
-5. 대포에 올라타고 발사되고 착륙하기까지는 정확히 2초가 걸림
-6. 대포는 장애물이 아니므로 당신이 뛰는 도중에 대포가 있다면 무시하고 이동가능
+# 최단 경로 길이 출력
+1. 무방향 그래프
+2. 1번에서 N번으로 최단 거리 이동
+3. 임의로 주어진 두 정점은 반드시 통과해야 함
+4. 이동했던 정점, 간선 다시 이동 가능
+5. 최단 경로 없을시 -1 출력
 @ 풀이
-(1) 각 위치에서 각 대포마다의 거리를 다 구하기
-(2) 다익스트라 사용
+(1) 다익스트라 이용
+(2) 1 에서 시작할 때, v1 에서 시작할 때, v2 에서 시작할 때 구하고
+(3) 1 - v1 - v2 - N 경우, 1 - v2 - v1 - N 경우 구하기
 """
 import heapq
-# 거리 구하는 라이브러리
-import math
-
-
-# 거리 구하는 함수
-def distance(x1, x2, y1, y2):
-    return math.hypot(x1 - x2, y1 - y2)
 
 
 # 다익스트라 함수
-def dijkstra(distances):
-    # 누적 거리
-    accumulate = [[(500 ** 2) + (500 ** 2) + 1, 0] for _ in range(n + 2)]
-    # 우선순위 큐 생성
+def dijkstra(adj_list, start):
+    # 거리 리스트
+    distances = [10e9] * (N + 1)
+    # 우선순위 큐
     pq = []
-    # 시작거리 및 시작점, 대포 탑승 회수 인큐
-    heapq.heappush(pq, (0, 0, 0))
+    # 시작점 거리, 시작위치
+    heapq.heappush(pq, (0, start))
+    # 시작위치 거리 기록
+    distances[start] = 0
     # 큐가 빌 때까지
     while pq:
-        dist, now, cnt = heapq.heappop(pq)
-
-        # 현재 위치를 이미 방문했고, 누적 거리보다 적게 방문했었다면 넘기기
-        if accumulate[now][0] < dist:
+        dist, now = heapq.heappop(pq)
+        if distances[now] < dist:
             continue
-        # 현재위치 누적거리 및 대포 탑승 회수 갱신
-        accumulate[now][0] = dist
-        accumulate[now][1] = cnt
-        # 인접 지역 탐색
-        for new_dist, new in distances[now]:
-            # 다음 위치를 이미 방문했고, 누적 거리보다 적게 방문했었다면 넘기기
-            if accumulate[new][0] < new_dist + dist:
+
+        for new_dist, new in adj_list[now]:
+            if distances[new] < dist + new_dist:
                 continue
-            # 대포 탑승 여부 확인(2초(10m)보다 먼 거리면 대포 탑승하는게 이득)
-            if new_dist > 10:
-                # 누적 거리 갱신
-                new_dist = new_dist + dist
-                heapq.heappush(pq, (new_dist, new, cnt + 1))
-            else:
-                new_dist = new_dist + dist
-                heapq.heappush(pq, (new_dist, new, cnt))
-    
-    print(accumulate)
+            distances[new] = dist + new_dist
+            heapq.heappush(pq, (dist + new_dist, new))
+
+    return distances
 
 
-# 현재 좌표 X, Y
-start_X, start_Y = map(float, input().split())
-# 목적지 좌표 X, Y
-end_X, end_Y = map(float, input().split())
-# 대포의 숫자 정수 n
-n = int(input())
-# 각 대포의 좌표
-cannons = [(start_X, start_Y)]
-for _ in range(n):
-    x, y = map(float, input().split())
-    cannons.append((x, y))
-cannons.append((end_X, end_Y))
-# 각 좌표의 시간 값 구하기
-distances = [[] for _ in range(n + 2)]
-for i in range(n + 1):
-    for j in range(i + 1, n + 2):
-        # 거리 구하기
-        d = distance(cannons[i][0], cannons[j][0], cannons[i][1], cannons[j][1])
-        # 시간 구하기, 처음일 때는 대포를 탈 수 없음
-        if i == 0:
-            t = d / 5
-        else:
-            # 시간 구하기, 거리가 30보다 크면 대포 타기
-            if d > 30:
-                t = 2 + (abs(d - 50) / 5)
-            else:
-                t = d / 5
-        distances[i].append((t, j))
-        distances[j].append((t, i))
+# 정점 수 N, 간선 수 E
+N, E = map(int, input().split())
+# 인접 리스트
+adj_list = [[] for _ in range(N + 1)]
+for _ in range(E):
+    # 정점 a, b, 거리 c
+    a, b, c = map(int, input().split())
+    adj_list[a].append((c, b))
+    adj_list[b].append((c, a))
+# 반드시 거쳐야 하는 정점 v1, v2
+v1, v2 = map(int, input().split())
 
-print(distances)
-# dijkstra(distances)
-
-
-
-
-
-
-
-
-
-
-
-
-
+# 1 에서 시작할 떄
+start_one = dijkstra(adj_list, 1)
+# v1 에서 시작할 때
+start_v1 = dijkstra(adj_list, v1)
+# v2 에서 시작할 때
+start_v2 = dijkstra(adj_list, v2)
+# v1 - v2 로 목적지를 갈 때
+v1_first = start_one[v1] + start_v1[v2] + start_v2[N]
+# v2 - v1 로 목적지를 갈 때
+v2_first = start_one[v2] + start_v2[v1] + start_v1[N]
+# 최소값 구하기
+result = min(v1_first, v2_first)
+if result < 10e9:
+    print(result)
+else:
+    print(-1)
 
