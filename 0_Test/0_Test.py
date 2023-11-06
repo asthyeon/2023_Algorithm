@@ -3,33 +3,33 @@ sys.stdin = open('input.txt')
 input = sys.stdin.readline
 
 """
-# 구슬 무게가 파악 가능하면 Y, 아니면 N 출력
-1. 추를 이용해 구슬의 무게를 파악하기
-@ 풀이
-(1) dp로 풀기
-(2) 
-무게 0 1    2  3   4     5   6   7   8   9   10   11   12   13   14   15
-  추 
-  2   0    2  0   0     
-  3   3-2  2  3   0
-  3   3-2  2   3   3+3-2
-  3   3-2  2   3   3+3-2
- 
+# 정규표현식 사용
+1. 정규표현식(정규식)
+ - 복잡한 문자열을 처리할 때 사용하는 기법
+ - re 모듈: 정규 표현식 지원
+ - compile: 정규 표현식을 컴파일
+ - match(): 문자열의 처음부터 정규식과 매치되는지 조사
+ - fullmatch(): 문자열의 남는 부분 없이 완벽하게 일치하는지 검사
+ - search(): 문자열 전체를 검색하여 정규식과 매치되는지 조사
+ - findall(): 정규식과 매치되는 모든 문자열을 리스트로 리턴
+ - finditer(): 정규식과 매치되는 모든 문자열을 반복 가능한 객체로 리턴
 """
 
-# 추의 개수
-weights = int(input())
-# 추의 무게들
-weights_list = list(map(int, input().split()))
-# 구슬의 개수
-marbles = int(input())
-# 구슬의 무게들
-marbles_list = list(map(int, input().split()))
+import re
 
+# 정규 표현식을 컴파일
+p = re.compile('(100+1+|01)+')
 
-
-
-
+T = int(input())
+for tc in range(1, T + 1):
+    # 전파 입력
+    spread = input().strip()
+    # 정규식과 매치된다면 예스
+    if p.fullmatch(spread):
+        print('YES')
+    # 매치되지 않으면 노
+    else:
+        print('NO')
 
 
 
