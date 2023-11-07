@@ -1,4 +1,5 @@
 import sys
+
 sys.stdin = open('input.txt')
 input = sys.stdin.readline
 
@@ -51,7 +52,7 @@ AAACCCABA
    A 0 1 2 3 3 3 3 4 4 4
    B 0 1 2 3 4 4 4 4 4 4
    A 0 1 2 3 4 4 4 5 5 5
-   
+
 ADQWEQWDQWGFSDAHWREYERFGD
 FGDGFDSGWERDSAFLSD
 
@@ -75,7 +76,7 @@ FGDGFDSGWERDSAFLSD
     L 0 1 1 1 2 3 3 3 4 4 4 4 5 5 5 6 6 6 6 6 6 6 7 8 8 8
     S 0 1 1 1 2 3 3 3 4 4 4 4 5 6 6 6 6 6 6 6 6 6 7 8 8 8
     D 0 1 2 2 2 3 3 3 4 4 4 4 5 6 7 7 7 7 7 7 7 7 7 8 8 9
-   
+
 (2) 두 문자가 같다면 dp[x][y] = dp[x - 1][y - 1] + 1
 (3) 두 문자가 다르다면 위쪽과 왼쪽 중 큰 값 dp[x][y] = max(dp[x - 1][y], dp[x][y - 1]) 
 """
