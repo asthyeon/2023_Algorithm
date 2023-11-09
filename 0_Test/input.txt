@@ -1,4 +1,7 @@
-3 3
-0 4
-4 7
-7 10
+3 4 3
+abcb
+bcaa
+abac
+aba
+abc
+cab
