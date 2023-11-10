@@ -1,7 +1,2 @@
-3 4 3
-abcb
-bcaa
-abac
-aba
-abc
-cab
+16
+1 1 1 5 5 5 5 5 5 5 5 5 5 5 5 10000
