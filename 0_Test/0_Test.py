@@ -3,48 +3,58 @@ sys.stdin = open('input.txt')
 input = sys.stdin.readline
 
 """
-# 호 안에 수류탄이야!!
-[출력: 중대장 모르게 끝 -> "권병장님, 중대장님이 찾으십니다" 바닥행 -> "엄마 나 전역 늦어질 것 같아"]
-1. 수류탄은 욱제와 전우들 사이를 옮겨다님
-2. 한 위치에 여러 명의 전우가 서있다면 아무나 받아 다음 전우에게 던질 수 있음
-3. 누군가의 팔 힘이 모자라 바닥에 떨어질 수 있음
-4. N 번째 전우가 수류탄을 받으면 중대장 모르게 끝
+# 공통 부분 문자열
+[출력: 두 문자열에 모두 포함 된 부분 문자열 중 가장 긴 것의 길이 출력]
+1. 어떤 문자열 s의 부분 문자열 t란, s에 t가 연속으로 나타나는 것
+2. 빈 문자열도 공통문자열이 될 수 있음
 @ 풀이
-(1) 수류탄 사거리보다 작은 범위에 전우가 있을 경우 넘기기
+(1) 브루트포스로 문자열 다 검사해보기 -> 시간초과
+(2) dp로 풀기
+ - 같은 문자열이면 dp[x - 1][y - 1] + 1
+ - 이어져야 하기 때문에 끊기면 0으로 만들기
+
+      A  B  R  A  C  A  D  A  B  R  A
+ [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+E [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+C [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+A [0, 1, 0, 0, 1, 0, 2, 0, 1, 0, 0, 1],
+D [0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0],
+A [0, 1, 0, 0, 1, 0, 1, 0, 4, 0, 0, 1],
+D [0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0],
+A [0, 1, 0, 0, 1, 0, 1, 0, 3, 0, 0, 1],
+B [0, 0, 2, 0, 0, 0, 0, 0, 0, 4, 0, 0],
+R [0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 5, 0],
+B [0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+C [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+R [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0],
+D [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+A [0, 1, 0, 0, 1, 0, 1, 0, 2, 0, 0, 1],
+R [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0],
+A [0, 1, 0, 0, 2, 0, 1, 0, 1, 0, 0, 2]]
+
 """
 
 
-# 수류탄 넘기기
-def grenade(comrades, distances):
-    # 수류탄을 들고 있는 전우
-    target = 0
-    # 수류탄 범위
-    location = 0
-    for i in range(1, N):
-        # 다음 위치가 범위 안에 있다면
-        if location + distances[target] >= comrades[i]:
-            if i < N - 1:
-                # 현재 범위와 다음 범위 비교하여 큰 값으로 교체
-                if comrades[i] + distances[i] > location + distances[target]:
-                    target = i
-                    location = comrades[i]
-        # 다음 위치가 범위 안에 없다면
-        else:
-            return '엄마 나 전역 늦어질 것 같아'
-    # 마지막 위치까지 다 돌았다면
-    else:
-        return '권병장님, 중대장님이 찾으십니다'
+# dp 함수
+def dynamic_programming(s1, s2):
+    dp = [[0] * (len(s1) + 1) for _ in range(len(s2) + 1)]
+
+    for x in range(1, len(s2) + 1):
+        for y in range(1, len(s1) + 1):
+            # 같은 문자열이면 대각선 위의 값 + 1
+            if s2[x - 1] == s1[y - 1]:
+                dp[x][y] = dp[x - 1][y - 1] + 1
+
+    # 가장 큰 값 찾기
+    answer = 0
+    for row in dp:
+        if answer < max(row):
+            answer = max(row)
+    return answer
 
 
-# 전우 수
-N = int(input())
-# 전우들의 좌표
-comrades = list(map(int, input().split()))
-comrades.sort()
-if N >= 2:
-    # 전우들의 사거리
-    distances = list(map(int, input().split()))
-    # 함수 사용
-    print(grenade(comrades, distances))
-else:
-    print('권병장님, 중대장님이 찾으십니다')
+# 문자열 입력받기
+s1 = input().rstrip()
+s2 = input().rstrip()
+
+print(dynamic_programming(s1, s2))
