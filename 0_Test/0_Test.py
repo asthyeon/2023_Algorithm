@@ -3,52 +3,44 @@ sys.stdin = open('input.txt')
 input = sys.stdin.readline
 
 """
-# Yonsei TOTO
-[출력: 주어진 마일리지로 최대로 들을 수 있는 과목 개수 출력]
-1. 듣고 싶은 과목에 마일리지 1~36 분배 가능
-2. 마일리지를 많이 투자한 순으로 그 과목의 수강인원만큼 신청됨
-3. 마일리지가 같으면 성준이에게 우선순위가 주어짐
+# 센서
+[출력: K개의 집중국의 수신 가능 영역의 길이의 합의 최솟값 출력]
+1. 고속도로 위에 최대 K개의 집중국 세우기
+2. N개의 센서가 적어도 하나의 집중국과는 통신해야함
+3. 각 집중국의 수신 가능 영역의 길이의 합을 최소화해야 함
+4. 집중국의 수신가능영역의 길이는 0 이상이며 모든 센서의 좌표가 다를 필요는 없음
 @ 풀이
-(1) 각 과목별로 최소로 들일 수 있는 마일리지 계산하기
-(2) 주어진 마일리지로 최소값부터 분배
+(1) 집중국으로 묶기, 각 거리 구하기
+- [1 3 6 6 7 9]
+    2 3 0 1 2
+- [1 3] [6 6 7 9]: 5
+    2       1 2
+
+- [3 6 7 8 10 12 14 15 18 20]
+    3 1 1 2  2  2  1  3  2
+- [3] [6 7 8] [10 12] [14 15] [18 20]: 7
+        1 1      2       1       2
+(2) 각 센서의 거리가 큰 값들 사이에는 집중국을 두지 않는다
+(3) 거리 값이 큰 것들은 제외하기
 """
 
-# 과목수 n, 주어진 마일리지 m
-n, m = map(int, input().split())
-# 각과목별 필요한 마일리지
-needs = []
-# 과목마다 주어지는 정보
-for _ in range(n):
-    # 과목 신청한 사람 수 P, 수강인원 L
-    P, L = map(int, input().split())
-    # 각 사람이 마일리지를 얼마나 넣었는지 주어짐
-    mileages = list(map(int, input().split()))
-    
-    # 마일리지 역순 정렬
-    mileages.sort(reverse=True)
-    
-    # 성준이가 넣어야할 마일리지
-    # 신청한 사람이 수강인원보다 많거나 같다면
-    if P >= L:
-        need = mileages[L - 1]
-        needs.append(need)
-    # 수강인원이 더적다면 마일리지는 최소값 1
-    else:
-        need = 1
-        needs.append(need)
-# 필요한 마일리지 정렬
-needs.sort()
-# 들을 수 있는 과목 수
-cnt = 0
-# 과목수 계산
-for need in needs:
-    if need > 36:
-        break
-    if m >= need:
-        cnt += 1
-        m -= need
-    else:
-        break
+# 센서 수 N
+N = int(input())
+# 집중국 수
+K = int(input())
+# N 개의 센서의 좌표
+locations = list(map(int, input().split()))
+# 정렬
+locations.sort()
 
-print(cnt)
+# 각 센서간 거리 구하기
+distances = []
+for i in range(N - 1):
+    distances.append(locations[i + 1] - locations[i])
+# 정렬
+distances.sort()
+# 거리 값이 큰 것은 제외(집중국 수만큼 제외)
+print(sum(distances[:N - K]))
 
+# print(locations)
+# print(distances)
