@@ -52,7 +52,7 @@ N = 3
 중복: 44
 개수: 20
 
-(2) 규칙 찾기
+(2) 규칙 찾기 => 규칙 틀림
 1 1  1  1   [4]
 1 2  3  4   [10]
 1 3  6  10  [20]
@@ -63,29 +63,39 @@ N = 3
 1 8  30 116 [155]
 1 9  33 155 [198]
 1 10 35 198 [244]
-(3) dp로 풀기
+
+(3) dp로 풀기 => X
+
+(4) 백트래킹 => 조합 사용: 중복 없이 만들기
 """
+# 각 문자의 수
+rome = {'I': 1, 'V': 5, 'X': 10, 'L': 50}
+romes = ['I', 'V', 'X', 'L']
+# 중복 수 제거를 위한 set
+duplications = set()
 
 
-# dp 함수
-def dynamic_programming(N):
-    dp = [[0] * 4 for _ in range(N)]
-    dp[0][0] = 1
-    dp[0][1] = 1
-    dp[0][2] = 1
-    dp[0][3] = 1
+# 백트래킹 함수
+def back_tracking(used, total, start):
+    # 문자가 다 쓰인 경우 set에 넣기
+    if used == N:
+        duplications.add(total)
+        return
 
-    for i in range(1, N):
-        dp[i][0] = 1
-        dp[i][1] = dp[i - 1][1] + 1
-        dp[i][2] = dp[i - 1][2] + dp[i][1]
-        dp[i][3] = sum(dp[i - 1])
-
-    for _ in range(N):
-        print(dp[_])
+    # 4개의 문자 반복
+    for i in range(start, 4):
+        back_tracking(used + 1, total + rome[romes[i]], i)
 
 
 # 사용할 수 있는 문자의 수 N
 N = int(input())
 
-dynamic_programming(N)
+# 사용된 숫자 수
+used = 0
+# 숫자의 합
+total = 0
+# 시작 문자
+start = 0
+
+back_tracking(used, total, start)
+print(len(duplications))
