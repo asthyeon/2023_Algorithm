@@ -3,46 +3,66 @@ sys.stdin = open('input.txt')
 input = sys.stdin.readline
 
 """
-# 걸그룹 마스터 준석이
-[출력: 퀴즈의 종류가 0 = 멤버이름 사전순 출력, 1 = 해당 멤버가 속한 팀의 이름 출력]
-1. 걸그룹 개인과 팀의 이름을 검색하여 외우게 하는 프로그램 만들기
+# 개미
+[출력: T초가 지난 후에 개미의 순서 출력]
+1. 개미가 일렬로 이동할 때 가장 앞의 개미를 제외한 나머지 개미는 모두 앞에 개미 한 마리 존재
+2. 두 그룹이 만났을 때 1초에 한번씩 개미는 서로를 점프함(뛰어넘기)
+3. 자신의 앞에 반대 방향으로 움직이던 개미가 있는 경우에만 점프
+4. 이동예시 
+CBA> <DEF
+CB> <D A> <EF
+C> <D B> <E A> <F
+
+CBADEF => CBDAEF => CDBEAF
+5. 첫 번째 그룹 방향 >(오른쪽)
+6. 두 번째 그룹 방향 <(왼쪽)
+@ 풀이
+(1) 그냥 풀기
 """
-# 팀 딕셔너리
-teams = {}
-# 팀 이름 배열
-team_names = []
 
-# 걸그룹 수 N, 맞혀야 할 문제 M
-N, M = map(int, input().split())
-# 걸그룹 정보
-for _ in range(N):
-    # 팀이름
-    team = input().rstrip()
-    team_names.append(team)
-    # 멤버 수
-    cnt = int(input())
-    teams[team] = []
-    # 멤버 정보 넣기
-    for _ in range(cnt):
-        # 멤버
-        member = input().rstrip()
-        teams[team].append(member)
-    # 멤버 사전순으로 정렬
-    teams[team].sort()
 
-# M 개의 퀴즈
-for _ in range(M):
-    # 팀의 이름이나 멤버 이름
-    name = input().rstrip()
-    # 퀴즈타입
-    quiz = int(input())
+# 뛰어넘기 함수
+def jump(G1, G2, word):
+    time = 0
+    # T초만큼 반복
+    while time < T:
+        flags = [[0] * (N1 + N2)]
+        string = ''
+        for w in range(N1 + N2 - 1):
+            if word[w] in G1:
+                if word[w + 1] in G2:
+                    string += word[w + 1]
+                    string += word[w]
+                else:
+                    string += word[w]
+                    if w == N1 + N2 - 2:
+                        string += word[w + 1]
+            else:
+                if word[w] not in string:
+                    string += word[w]
+                if w == N1 + N2 - 2:
+                    string += word[w + 1]
+        word = string
+        time += 1
+    #     print(f'time: {time}, string {string}')
+    #
+    # print(f'답: {word}')
+    return word
 
-    # 팀의 이름이 주어질 때
-    if quiz == 0:
-        for mem in teams[name]:
-            print(mem)
-    # 멤버의 이름이 주어질 때
-    else:
-        for team_name in team_names:
-            if name in teams[team_name]:
-                print(team_name)
+
+# 첫번째 그룹 수 N1, 두번째 그룹 수 N2
+N1, N2 = map(int, input().split())
+# 첫번째 그룹
+G1 = input().rstrip()
+# 방향에 맞춰서 변경하기
+word1 = ''
+for g in G1:
+    word1 = g + word1
+# 두번째 그룹
+G2 = input().rstrip()
+# 두 그룹합친 문자열
+word = word1 + G2
+# 시간초 T
+T = int(input())
+
+print(jump(G1, G2, word))
