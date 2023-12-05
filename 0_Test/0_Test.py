@@ -3,83 +3,93 @@ sys.stdin = open('input.txt')
 input = sys.stdin.readline
 
 """
-# 상범 빌딩
-[출력: 각 빌딩에 대해 답 출력(탈출시와 불가능시 출력문구)
-1. 각 변의 길이가 1인 정육면체로 이루어짐
-2. 금으로 이루어지면 지나갈 수 없고, 비어 있으면 지나갈 수 있음
-3. 인접한 6개의 칸(동, 서, 남, 북, 상, 하)로 1분의 시간을 들여 이동 가능(대각선 불가능)
-4. 출구를 통해서만 탈출 가능
-5. 'S': 시작, 'E': 출구, '#': 금, '.': 비어 있음
+# 감시
+[출력: 사각지대의 최소크기 출력]
+1. CCTV 별로 방향이 존재함
+ - 1번: 오
+ - 2번: 오, 왼
+ - 3번: 오, 위
+ - 4번: 오, 왼, 위
+ - 5번: 오, 아, 왼, 위
+2. CCTV는 감시할 수 있는 방향에 있는 칸 전체 감시 가능
+3. CCTV는 벽을 통과할 수 없고 감시할 수 없는 영역은 사각지대
+4. CCTV는 90도 방향 회전 가능, CCTV를 통과할 수 있음
+5. CCTV의 방향을 적절히 정해서, 사각 지대의 최소 크기 구하기
 @ 풀이
-(1) bfs로 탈출시도
-(2) 덱을 이용하여 가장 빠른 시간 찾기
+(1) 최적의 경우 X -> 모든 경우의 수 구하여 찾기
+(2) CCTV 수로 백트래킹
 """
-from collections import deque
+# cctv 방향
+dx = (0, 1, 0, -1)
+dy = (1, 0, -1, 0)
+# cctv 번호에 따른 방향
+cctv_dir = [[],
+            # 1번
+            [[0], [1], [2], [3]],
+            # 2번
+            [[0, 2], [1, 3]],
+            # 3번
+            [[0, 3], [1, 0], [2, 1], [3, 2]],
+            # 4번
+            [[0, 2, 3], [1, 3, 0], [2, 0, 1], [3, 1, 2]],
+            # 5번
+            [[0, 1, 2, 3]]]
 
 
-# bfs 함수
-def bfs(building, sf, sx, sy):
-    # 방문 리스트
-    visited = [[[0] * C for _ in range(R)] for _ in range(L)]
-    # 큐 형성
-    q = deque([])
-    # 시간
-    time = 0
-    # 시작점 인큐
-    q.append((time, sf, sx, sy))
-    # 시작점 방문기록
-    visited[sf][sx][sy] = 1
-    # 큐가 빌 때까지
-    while q:
-        t, f, x, y = q.popleft()
+# 백트래킹 함수
+def back_tracking(arr, cctv_xy, cctv):
+    global blind_min
+    # 백트래킹 종료조건(모든 cctv의 사각지대 탐색 완료)
+    if cctv == len(cctv_xy):
+        blind = 0
+        for i in range(N):
+            for j in range(M):
+                if arr[i][j] == 0:
+                    blind += 1
+        # 최소값 비교
+        if blind_min > blind:
+            blind_min = blind
+        return
 
-        # 델타탐색
-        t += 1
-        for df, dx, dy in ((0, 0, 1), (0, 1, 0), (0, 0, -1), (0, -1, 0), (1, 0, 0), (-1, 0, 0)):
-            nf, nx, ny = f + df, x + dx, y + dy
-            # 벽형성
-            if 0 <= nf < L and 0 <= nx < R and 0 <= ny < C:
-                # 비어있고 방문하지 않았다면 방문
-                if building[nf][nx][ny] == '.' and visited[nf][nx][ny] == 0:
-                    q.append((t, nf, nx, ny))
-                    visited[nf][nx][ny] = 1
-                # 도착지점이라면 종료
-                elif building[nf][nx][ny] == 'E':
-                    return f'Escaped in {t} minute(s).'
-
-    # 탈출 못하는 경우
-    return 'Trapped!'
-
-
-# 여러 개의 테스트 케이스
-while True:
-    # 층 수 L, 행 수 R, 열 수 C
-    L, R, C = map(int, input().split())
-    # 전부 다 0 이면 종료
-    if L == 0 and R == 0 and C == 0:
-        break
-    # 빌딩 정보
-    building = []
-    for _ in range(L):
-        floor = []
-        for _ in range(R + 1):
-            line = list(input().rstrip())
-            # 빈문자열은 생략하기
-            if line == []:
-                continue
-            floor.append(line)
-        building.append(floor)
-
-    # 시작지점을 찾고 bfs 탐색시작
-    started = False
-    for sf in range(L):
-        for sx in range(R):
-            for sy in range(C):
-                if building[sf][sx][sy] == 'S':
-                    print(bfs(building, sf, sx, sy))
-                    started = True
+    # 모든 경우를 확인하기 위한 복사본 만들기
+    arr_copy = [o[:] for o in arr[:]]
+    # 사각지대 탐색(cctv 번호의 방향에 따라 여러번 반복)
+    for dir in cctv_dir[cctv_xy[cctv][2]]:
+        # 각 방향만큼 반복
+        for d in dir:
+            nx,  ny = cctv_xy[cctv][0], cctv_xy[cctv][1]
+            while True:
+                nx, ny = nx + dx[d], ny + dy[d]
+                # 벽형성
+                if 0 <= nx < N and 0 <= ny < M:
+                    # 벽을 만날시 중지
+                    if arr_copy[nx][ny] == 6:
+                        break
+                    # 빈 칸일시 감시
+                    elif arr_copy[nx][ny] == 0:
+                        arr_copy[nx][ny] = '#'
+                else:
                     break
-            if started:
-                break
-        if started:
-            break
+        # 다음 cctv를 향해 재귀
+        back_tracking(arr_copy, cctv_xy, cctv + 1)
+        # 복사본 초기화
+        arr_copy = [o[:] for o in arr[:]]
+
+
+# 세로 N, 가로 M
+N, M = map(int, input().split())
+# 사무실 정보
+office = [list(map(int, input().split())) for _ in range(N)]
+
+# 모든 CCTV 위치 찾기
+cctv_xy = []
+for x in range(N):
+    for y in range(M):
+        if 1 <= office[x][y] <= 5:
+            cctv_xy.append((x, y, office[x][y]))
+
+# 사각지대 최소값
+blind_min = 10e9
+
+back_tracking(office, cctv_xy, 0)
+print(blind_min)
