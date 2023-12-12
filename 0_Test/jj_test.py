@@ -2,35 +2,26 @@ import sys
 sys.stdin = open('input.txt')
 input = sys.stdin.readline
 
-INF = 1e10
+N = int(input())
+mat = [list(map(int, input().split())) for _ in range(N)]
+dp = [[[0, -1] for _ in range(N+1)] for _ in range(N+1)]
 
-n, k = map(int, sys.stdin.readline().split())
-point = [list(map(int, sys.stdin.readline().split())) for _ in range(n)]
+for i in range(1, N+1):
+    for j in range(1, N+1):
+        left, up = dp[i][j-1], dp[i-1][j]
+        left_check = (left[1]+1)%3 == mat[i-1][j-1]
+        up_check = (up[1]+1)%3 == mat[i-1][j-1]
 
-distance = [[0 for _ in range(n)] for _ in range(n)]
-for i in range(n):
-    for j in range(n):
-        distance[i][j] = abs(point[i][0] - point[j][0]) + abs(point[i][1] - point[j][1])
+        left_score = left[0] + left_check
+        up_score = up[0] + up_check
+        if left_score > up_score:
+            dp[i][j][0] = left_score
+            dp[i][j][1] = mat[i-1][j-1] if left_check else left[1]
 
-dp = [[INF for _ in range(n)] for _ in range(k + 1)]
-dp[0][0] = 0
+        else:
+            dp[i][j][0] = up_score
+            dp[i][j][1] = mat[i-1][j-1] if up_check else up[1]
 
-# k = 0
-for i in range(1, n):
-    dp[0][i] = dp[0][i - 1] + distance[i - 1][i]
-
-# k = 1, 2, ... k
-for i in range(1, k + 1):
-    dp[i][0], dp[i][1] = 0, dp[i - 1][1]
-    dp[i][i] = distance[0][i]
-    for j in range(1, n):
-        for m in range(i, 0, -1):
-            if j - m - 1 < 0:
-                continue
-            dp[i][j] = min(dp[i][j], dp[i - m][j - m - 1] + distance[j][j - m - 1], dp[i][j - 1] + distance[j - 1][j])
-            print(f'{i}개 건너뛸 수 있는 상태 {dp[i]}')
-
-# print(distance)
-# for _ in range(k + 1):
-#     print(dp[_])
-# print(dp[-1][-1])
+for _ in range(N + 1):
+    print(dp[_])
+print(dp[N][N][0])
