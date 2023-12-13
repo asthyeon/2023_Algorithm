@@ -2,26 +2,19 @@ import sys
 sys.stdin = open('input.txt')
 input = sys.stdin.readline
 
-N = int(input())
-mat = [list(map(int, input().split())) for _ in range(N)]
-dp = [[[0, -1] for _ in range(N+1)] for _ in range(N+1)]
+info = []
+for line in sys.stdin: info.append([int(e) for e in line.split()])
+sz = len(info)
+dp = [[[0 for _ in range(15 + 5)] for _ in range(15 + 5)] for _ in range(sz + 1)]
 
-for i in range(1, N+1):
-    for j in range(1, N+1):
-        left, up = dp[i][j-1], dp[i-1][j]
-        left_check = (left[1]+1)%3 == mat[i-1][j-1]
-        up_check = (up[1]+1)%3 == mat[i-1][j-1]
+for i in range(sz):
+    for w in range(15 + 1):
+        for b in range(15 + 1):
+            if w + 1 <= 15:
+                dp[i + 1][w + 1][b] = max(dp[i + 1][w + 1][b], dp[i][w][b] + info[i][0])
+            if b + 1 <= 15:
+                dp[i + 1][w][b + 1] = max(dp[i + 1][w][b + 1], dp[i][w][b] + info[i][1])
+            dp[i + 1][w][b] = max(dp[i + 1][w][b], dp[i][w][b])
 
-        left_score = left[0] + left_check
-        up_score = up[0] + up_check
-        if left_score > up_score:
-            dp[i][j][0] = left_score
-            dp[i][j][1] = mat[i-1][j-1] if left_check else left[1]
-
-        else:
-            dp[i][j][0] = up_score
-            dp[i][j][1] = mat[i-1][j-1] if up_check else up[1]
-
-for _ in range(N + 1):
-    print(dp[_])
-print(dp[N][N][0])
+print(info)
+print(dp[sz][15][15])

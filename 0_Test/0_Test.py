@@ -3,83 +3,60 @@ sys.stdin = open('input.txt')
 input = sys.stdin.readline
 
 """
-# 우유 도시
-[출력: 마실 수 있는 우유의 최대 개수]
-1. 우유 마시는 규칙
- - 맨 처음에는 딸기우유 한 팩
- - 딸기우유 다음 초코우유
- - 초코우유 다음 바나나우유
- - 바나나우유 다음 딸기우유
-2. 영학이는 (1, 1)에서 출발해 (N, N)까지 가면서 우유를 사 마심
-3. 영학이가 마실 수 있는 최대 우유 개수 구하기
-4. 0: 딸기우유, 1: 초코우유, 2: 바나나우유
-5. 오직 동쪽 또는 남쪽으로만 움직이고 우유를 마실 수도 안마실 수도 있음
+# 최고의 팀 만들기
+[출력: 만들 수 있는 팀 중 가장 큰 능력치를 갖는 팀의 능력치 출력]
+1. 흑 플레이 15명, 백 플레이 15명
+2. 흑, 백의 능력치는 1 ~ 100
+3. 팀 전체 능력치는 흑 전체 능력치 + 백 전체 능력치
+4. 플레이어 한명의 백 능력치, 흑 능력치가 주어짐
+5. 해당 능력치를 토대로 가장 큰 능력치를 갖는 팀 능력치 출력
 @ 풀이
-(1) bfs로 마시는 경우 안마시는 경우 둘 다 체크 => 메모리 초과
-(2) dp로 풀기
- - dp 값은 그 지점까지 우유를 마신 최대 개수 => 우유를 마신상태를 기억 못함
- - dp 값에 어떤 우유를 마셨는지 상태 값도 같이 넣기
- - 꼭 0, 0 에서 우유를 마시지 않아도 됨
+(1) 그냥 풀어보기
+(2) 우선순위 큐 이용 => 같을 때 처리를 못하겠음
+(3) dp 이용
+ - dp[p][w][b] = 현재까지의 능력치들의 합 중 최대값
+ - p: 해당 번호 선수
+ - w: 백 플레이어일 때
+ - b: 흑 플레이어일 때
+ 
 """
-# 다음 우유 좌표(처음에 우유를 안마셨을 때를 위해 -1 넣기)
-milk = {-1: 0, 0: 1, 1: 2, 2: 0}
+# 선수정보
+players = []
 
 
 # dp 함수
-def dynamic_programming(city):
-    dp = [[(-1, 0)] * N for _ in range(N)]
+def dynamic_programming(players):
+    dp = [[[0] * 16 for _ in range(16)] for _ in range(len(players) + 1)]
+    
+    # 선수 수만큼 반복
+    for p in range(len(players)):
+        # 백 플레이어가 15번이 될 때까지 반복
+        for w in range(16):
+            # 흑 플레이어가 15번이 될 때까지 반복
+            for b in range(16):
+                # 백 플레이어가 15번 전이라면
+                if w < 15:
+                    # 해당 선수를 백 플레이어로 쓰지 않을 때와 쓸 때를 비교
+                    dp[p + 1][w + 1][b] = max(dp[p + 1][w + 1][b], dp[p][w][b] + players[p][0])
+                # 흑 플레이어가 15번 전이라면
+                if b < 15:
+                    # 해당 선수를 백 플레이어로 쓰지 않을 때와 쓸 때를 비교
+                    dp[p + 1][w][b + 1] = max(dp[p + 1][w][b + 1], dp[p][w][b] + players[p][1])
+                # 해당 번호를 그 선수를 쓸 때와 안 쓸 때중 큰 값으로 지정
+                dp[p + 1][w][b] = max(dp[p + 1][w][b], dp[p][w][b])
 
-    for x in range(N):
-        for y in range(N):
-            # 첫번째 행일 때
-            if x == 0:
-                # 우유를 마실 수 있는지 확인
-                if city[x][y] == milk[dp[x][y - 1][0]]:
-                    # 우유를 마시고 넘어갈 수 있으면 마시기
-                    dp[x][y] = (milk[dp[x][y - 1][0]], dp[x][y - 1][1] + 1)
-                else:
-                    dp[x][y] = (dp[x][y - 1][0], dp[x][y - 1][1])
-            # 첫번째 열일 때
-            elif y == 0:
-                # 우유를 마실 수 있는지 확인
-                if city[x][y] == milk[dp[x - 1][y][0]]:
-                    # 우유를 마시고 넘어갈 수 있으면 마시기
-                    dp[x][y] = (milk[dp[x - 1][y][0]], dp[x - 1][y][1] + 1)
-                else:
-                    # 우유를 마실 수 없으면 마시지 않기
-                    dp[x][y] = (dp[x - 1][y][0], dp[x - 1][y][1])
-            # 그 외일 때
-            else:
-                # 위에서 우유를 마실 수 있는지 확인
-                if city[x][y] == milk[dp[x - 1][y][0]]:
-                    up_milk = milk[dp[x - 1][y][0]]
-                    up_drink = dp[x - 1][y][1] + 1
-                else:
-                    up_milk = dp[x - 1][y][0]
-                    up_drink = dp[x - 1][y][1]
-                # 왼쪽에서 우유를 마실 수 있는지 확인
-                if city[x][y] == milk[dp[x][y - 1][0]]:
-                    left_milk = milk[dp[x][y - 1][0]]
-                    left_drink = dp[x][y - 1][1] + 1
-                else:
-                    left_milk = dp[x][y - 1][0]
-                    left_drink = dp[x][y - 1][1]
-                # 더 큰 값으로 교체
-                if up_drink > left_drink:
-                    dp[x][y] = (up_milk, up_drink)
-                else:
-                    dp[x][y] = (left_milk, left_drink)
-
-    # for _ in range(N):
-    #     print(dp[_])
-
-    # N, N에 도착했을 때 최대 개수 반환
-    return dp[-1][-1][1]
+    return dp[len(players)][-1][-1]
 
 
-# 우유 도시 크기 N
-N = int(input())
-# 우유 도시 정보
-city = [list(map(int, input().split())) for _ in range(N)]
+while True:
+    # 입력이 있을 때
+    try:
+        # 백 능력치, 흑 능력치
+        white, black = map(int, input().split())
+        # 선수정보에 넣기
+        players.append((white, black))
 
-print(dynamic_programming(city))
+    # 입력이 없으면 결과 출력 후 반복 종료
+    except:
+        print(dynamic_programming(players))
+        break
