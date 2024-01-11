@@ -27,33 +27,28 @@ input = sys.stdin.readline
 6 -> 4 (4, 6, 7)팀
 7 -> 6 (4, 6, 7)팀
 (2) dfs로 탐색
+(3) 시간초과 지옥 -> 재귀로 풀기
 """
+sys.setrecursionlimit(10**9)
 
 
 # dfs 함수
-def dfs(start, used):
-    # 팀 프로젝트에 사용된 숫자라면 종료
-    if start in used:
-        return 0
-    # 혼자 팀이라면 종료
-    if start == choices[start]:
-        used[start] = 1
-        return 0
-    # 방문 리스트
-    visited = [0] * (n + 1)
-    # 이번 프로젝트 팀
-    project = []
+def dfs(start, project):
+    # 숫자 사용
+    used[start] = 1
+    # 이번 팀 멤버 추가
+    team.append(start)
+    # 이동
+    start = choices[start]
 
-    while True:
-        # 방문한 곳이라면 싸이클이므로(팀 프로젝트 이므로) 종료
-        if visited[start] == 1:
-            for num in project:
-                used[num] = 1
-            return
-        # 방문 기록
-        visited[start] = 1
-        # 이동
-        start = choices[start]
+    # 사용한 번호인지 체크
+    if used[start] == 1:
+        # 싸이클이라면 싸이클 시작 지점부터 프로젝트 참여자에 추가
+        if start in team:
+            project += team[team.index(start):]
+    # 사용한 번호가 아니라면 재귀
+    else:
+        dfs(start, project)
 
 
 # 테스트 케이스 수
@@ -64,14 +59,21 @@ for tc in range(1, T + 1):
     # 학생들이 선택한 번호(편의를 위해 0번 추가)
     choices = [0]
     choices += list(map(int, input().split()))
-
-    # 사용된 숫자인지 확인
-    used = {}
+    # cnt, use = 0, 0
+    # 팀 프로젝트 참여자들
+    project = []
+    # 사용된 숫자 리스트
+    used = [0] * (n + 1)
     # dfs 탐색
     for start in range(1, n + 1):
-        dfs(start, used)
-
-    print(used)
+        if used[start] == 0:
+            # 이번 팀
+            team = []
+            dfs(start, project)
+            # use += 1
+            # print(f'호출: {use}')
+    # print(project)
+    print(n - len(project))
 
 
 

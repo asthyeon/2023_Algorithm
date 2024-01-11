@@ -1,45 +1,38 @@
 import sys
 sys.stdin = open('input.txt')
 input = sys.stdin.readline
-
-from collections import deque
-
-
-def bfs():
-    que = deque([(0, 0)])
-
-    visited = [[-1] * N for _ in range(N)]
-
-    visited[0][0] = arr[0][0]
-
-    while que:
-        i, j = que.popleft()
-
-        for di, dj in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-            ni, nj = i + di, j + dj
-
-            if 0 <= ni < N and 0 <= nj < N:
-                if visited[ni][nj] < 0 or visited[ni][nj] > visited[i][j] + arr[ni][nj]:
-                    que.append((ni, nj))
-                    visited[ni][nj] = visited[i][j] + arr[ni][nj]
-
-    print('---')
-    for i in range(N):
-        print(visited[i])
-    print('---')
-
-    return visited[N - 1][N - 1]
+sys.setrecursionlimit(111111)  # 충분한 재귀 깊이를 주어 오류를 예방
 
 
-tc = 0
+def dfs(x):
+    global cnt
+    cnt += 1
+    print(f'사용횟수: {cnt}')
+    global result
+    visited[x] = True
+    cycle.append(x)  # 사이클을 이루는 팀을 확인하기 위함
+    number = numbers[x]
 
-while True:
+    if visited[number]:  # 방문가능한 곳이 끝났는지
+        if number in cycle:  # 사이클 가능 여부
+            result += cycle[cycle.index(number):]  # 사이클 되는 구간 부터만 팀을 이룸
+        return
+    else:
+        dfs(number)
+
+
+for _ in range(int(input())):
     N = int(input())
+    numbers = [0] + list(map(int, input().split()))
+    visited = [True] + [False] * N  # 방문 여부
+    result = []
+    # 사용횟수
+    cnt, use = 0, 0
+    for i in range(1, N + 1):
+        if not visited[i]:  # 방문 안한 곳이라면
+            cycle = []
+            dfs(i)  # DFS 함수 돌림
+            use += 1
+            print(f'호출: {use}')
 
-    if not N:
-        break
-
-    tc += 1
-
-    arr = [list(map(int, input().split())) for _ in range(N)]
-    print(f'Problem {tc}: {bfs()}')
+    print(N - len(result))  # 팀에 없는 사람 수
