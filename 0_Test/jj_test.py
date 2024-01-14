@@ -1,38 +1,20 @@
 import sys
 sys.stdin = open('input.txt')
 input = sys.stdin.readline
-sys.setrecursionlimit(111111)  # 충분한 재귀 깊이를 주어 오류를 예방
 
+while True:
+    word = input().rstrip()
 
-def dfs(x):
-    global cnt
-    cnt += 1
-    print(f'사용횟수: {cnt}')
-    global result
-    visited[x] = True
-    cycle.append(x)  # 사이클을 이루는 팀을 확인하기 위함
-    number = numbers[x]
+    if word == '0':
+        break
 
-    if visited[number]:  # 방문가능한 곳이 끝났는지
-        if number in cycle:  # 사이클 가능 여부
-            result += cycle[cycle.index(number):]  # 사이클 되는 구간 부터만 팀을 이룸
-        return
+    start = 0
+    end = len(word) - 1
+    for w in range(len(word) // 2):
+        if word[start] != word[end]:
+            print('no')
+            break
+        start += 1
+        end -= 1
     else:
-        dfs(number)
-
-
-for _ in range(int(input())):
-    N = int(input())
-    numbers = [0] + list(map(int, input().split()))
-    visited = [True] + [False] * N  # 방문 여부
-    result = []
-    # 사용횟수
-    cnt, use = 0, 0
-    for i in range(1, N + 1):
-        if not visited[i]:  # 방문 안한 곳이라면
-            cycle = []
-            dfs(i)  # DFS 함수 돌림
-            use += 1
-            print(f'호출: {use}')
-
-    print(N - len(result))  # 팀에 없는 사람 수
+        print('yes')
